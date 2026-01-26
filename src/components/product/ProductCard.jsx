@@ -113,7 +113,7 @@ export const ProductCard = ({ product }) => {
                     </div>
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900 line-clamp-1 leading-tight">{product.name}</h3>
-                <p className="text-blue-600 font-bold mt-1 text-sm">₹{product.price.toFixed(2)}</p>
+                <p className="text-blue-600 font-bold mt-1 text-sm">Rs{product.price.toFixed(2)}</p>
             </Link>
         </motion.div>
     );

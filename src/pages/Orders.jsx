@@ -126,7 +126,7 @@ export const Orders = () => {
                                         </div>
                                         <div className="flex-1 overflow-hidden">
                                             <p className="text-xs font-bold text-slate-900 truncate">{item.product_variants.products.name}</p>
-                                            <p className="text-[10px] text-slate-500 font-medium">Qty: {item.quantity} • ₹{item.price_at_purchase}</p>
+                                            <p className="text-[10px] text-slate-500 font-medium">Qty: {item.quantity} • Rs{item.price_at_purchase}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -141,7 +141,7 @@ export const Orders = () => {
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">Total Amount</p>
-                                    <p className="font-bold text-slate-900">₹{order.total_amount}</p>
+                                    <p className="font-bold text-slate-900">Rs{order.total_amount}</p>
                                 </div>
                             </div>
 

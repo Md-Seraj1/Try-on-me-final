@@ -117,7 +117,7 @@ export const OrderDetails = () => {
                                         <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{item.product_variants.products.name}</h4>
                                         <p className="text-xs text-slate-400 font-medium">Qty: {item.quantity} • Size: {item.product_variants.size}</p>
                                     </div>
-                                    <p className="font-bold text-slate-900">₹{item.price_at_purchase}</p>
+                                    <p className="font-bold text-slate-900">Rs{item.price_at_purchase}</p>
                                 </div>
                             </div>
                         ))}
@@ -130,7 +130,7 @@ export const OrderDetails = () => {
                     <div className="space-y-3">
                         <div className="flex justify-between text-sm text-slate-500 font-medium">
                             <span>Subtotal</span>
-                            <span>₹{order.total_amount}</span>
+                            <span>Rs{order.total_amount}</span>
                         </div>
                         <div className="flex justify-between text-sm text-slate-500 font-medium">
                             <span>Shipping</span>
@@ -139,7 +139,7 @@ export const OrderDetails = () => {
                         <div className="h-px bg-slate-50 my-2"></div>
                         <div className="flex justify-between text-lg font-bold text-slate-900">
                             <span>Total</span>
-                            <span>₹{order.total_amount}</span>
+                            <span>Rs{order.total_amount}</span>
                         </div>
                     </div>
                 </div>

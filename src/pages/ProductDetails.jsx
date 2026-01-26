@@ -132,7 +132,7 @@ export const ProductDetails = () => {
                         </div>
                     </div>
                     <div className="text-2xl font-bold text-slate-900">
-                        ₹{product.price}
+                        Rs{product.price}
                     </div>
                 </div>
 
