@@ -38,7 +38,7 @@ export const Cart = () => {
                                     <p className="text-xs text-slate-500">{item.brand}</p>
                                 </div>
                                 <div className="flex justify-between items-end">
-                                    <p className="font-bold text-blue-600">Rs{item.price}</p>
+                                    <p className="font-bold text-blue-600">₹{item.price}</p>
                                     <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-1">
                                         <button
                                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -61,21 +61,24 @@ export const Cart = () => {
                         </div>
                     ))}
 
-                    <div className="mt-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="mt-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <div className="flex justify-between mb-2 text-sm text-slate-600">
                             <span>Subtotal</span>
-                            <span>Rs{total().toFixed(2)}</span>
+                            <span>₹{total().toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between mb-4 text-sm text-slate-600">
                             <span>Tax (5%)</span>
-                            <span>Rs{(total() * 0.05).toFixed(2)}</span>
+                            <span>₹{(total() * 0.05).toFixed(2)}</span>
                         </div>
                         <div className="border-t border-slate-100 my-4"></div>
                         <div className="flex justify-between mb-6 text-lg font-bold text-slate-900">
                             <span>Total</span>
-                            <span>Rs{(total() * 1.05).toFixed(2)}</span>
+                            <span>₹{(total() * 1.05).toFixed(2)}</span>
                         </div>
-                        <Button className="w-full h-12 text-lg shadow-blue-200 shadow-xl">
+                        <Button
+                            className="w-full h-12 text-lg shadow-blue-200 shadow-xl"
+                            onClick={() => navigate('/checkout')}
+                        >
                             Checkout
                         </Button>
                     </div>

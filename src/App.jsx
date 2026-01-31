@@ -14,7 +14,7 @@ import { Orders } from './pages/Orders';
 import { OrderDetails } from './pages/OrderDetails';
 import { Wishlist } from './pages/Wishlist';
 import { PaymentMethods } from './pages/PaymentMethods';
-import { Checkout } from './pages/Checkout';
+import { Checkout } from './pages/CheckOut';
 import { PaymentSuccess } from './pages/PaymentSuccess';
 import { PaymentFailure } from './pages/PaymentFailure';
 import { Login } from './pages/auth/Login';
@@ -104,6 +104,7 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/try-on" element={<TryOn />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/Checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
@@ -113,6 +114,8 @@ function App() {
           <Route path="/order/:id" element={<OrderDetails />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/payments" element={<PaymentMethods />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<PaymentFailure />} />
           <Route path="*" element={<Placeholder title="404 Not Found" />} />
         </Route>
       </Routes>
