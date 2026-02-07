@@ -14,7 +14,7 @@ import { Orders } from './pages/Orders';
 import { OrderDetails } from './pages/OrderDetails';
 import { Wishlist } from './pages/Wishlist';
 import { PaymentMethods } from './pages/PaymentMethods';
-import { Checkout } from './pages/CheckOut';
+import { Checkout } from './pages/Checkout';
 import { PaymentSuccess } from './pages/PaymentSuccess';
 import { PaymentFailure } from './pages/PaymentFailure';
 import { Login } from './pages/auth/Login';
@@ -41,7 +41,7 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user);
         fetchWishlist(session.user.id);
       }
     });
@@ -49,7 +49,7 @@ function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user);
         fetchWishlist(session.user.id);
       } else {
         setProfile(null);
@@ -75,19 +75,38 @@ function App() {
     }
   };
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async (user) => {
+    if (!user) return;
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', user.id)
         .single();
 
-      if (!error && data) {
+      if (error && error.code === 'PGRST116') {
+        // Profile doesn't exist, create it (e.g., first social login)
+        const fullName = user.user_metadata?.full_name || user.user_metadata?.name || 'User';
+        const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            full_name: fullName,
+            avatar_url: avatarUrl,
+          })
+          .select()
+          .single();
+
+        if (!createError && newProfile) {
+          setProfile(newProfile);
+        }
+      } else if (!error && data) {
         setProfile(data);
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error handling profile:', error);
     }
   };
 
@@ -104,7 +123,7 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/try-on" element={<TryOn />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/Checkout" element={<Checkout />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
@@ -114,8 +133,8 @@ function App() {
           <Route path="/order/:id" element={<OrderDetails />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/payments" element={<PaymentMethods />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-failure" element={<PaymentFailure />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/failure" element={<PaymentFailure />} />
           <Route path="*" element={<Placeholder title="404 Not Found" />} />
         </Route>
       </Routes>
