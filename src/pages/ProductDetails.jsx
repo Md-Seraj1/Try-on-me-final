@@ -25,7 +25,7 @@ export const ProductDetails = () => {
         try {
             const { data, error } = await supabase
                 .from('products')
-                .select('*')
+                .select('*, categories(slug, name)')
                 .eq('id', id)
                 .single();
 
@@ -36,7 +36,8 @@ export const ProductDetails = () => {
                     ...data,
                     price: data.base_price,
                     image: data.images && data.images.length > 0 ? data.images[0] : 'https://via.placeholder.com/300',
-                    reviews: data.review_count // Align with mock mapping
+                    reviews: data.review_count,
+                    categorySlug: data.categories?.slug || 'clothes',
                 });
             }
         } catch (error) {
@@ -132,7 +133,7 @@ export const ProductDetails = () => {
                         </div>
                     </div>
                     <div className="text-2xl font-bold text-slate-900">
-                        Rs{product.price}
+                        Rs {product.price}
                     </div>
                 </div>
 
@@ -149,7 +150,7 @@ export const ProductDetails = () => {
                         size="sm"
                         className="bg-white text-violet-600 hover:bg-white/90 border-none"
                     >
-                        Try Now
+                        Try On
                     </Button>
                 </div>
 

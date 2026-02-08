@@ -99,7 +99,7 @@ export const Checkout = () => {
                                             </p>
                                         </div>
                                         <p className="text-xs font-bold text-slate-900">
-                                            ₹{(item.price * item.quantity).toFixed(2)}
+                                            Rs{(item.price * item.quantity).toFixed(2)}
                                         </p>
                                     </div>
                                 ))}
@@ -110,11 +110,11 @@ export const Checkout = () => {
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between text-slate-600">
                                     <span>Subtotal</span>
-                                    <span>₹{subtotal}</span>
+                                    <span>Rs{subtotal}</span>
                                 </div>
                                 <div className="flex justify-between text-slate-600">
                                     <span>Tax (5%)</span>
-                                    <span>₹{tax}</span>
+                                    <span>Rs{tax}</span>
                                 </div>
                                 <div className="flex justify-between text-slate-600">
                                     <span>Shipping</span>
@@ -123,7 +123,7 @@ export const Checkout = () => {
                                 <div className="h-px bg-slate-100 my-2" />
                                 <div className="flex justify-between text-lg font-bold text-slate-900">
                                     <span>Total</span>
-                                    <span>₹{grandTotal}</span>
+                                    <span>Rs{grandTotal}</span>
                                 </div>
                             </div>
                         </div>
@@ -156,7 +156,7 @@ export const Checkout = () => {
                         disabled={items.length === 0}
                         onClick={handleEsewaPay}
                     >
-                        Pay with eSewa (₹{grandTotal})
+                        Pay with eSewa (Rs{grandTotal})
                     </Button>
 
                     {items.length === 0 && (
