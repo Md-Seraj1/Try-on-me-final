@@ -78,8 +78,8 @@ export const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
-            <div className="w-full max-w-sm bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+        <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-slate-50">
+            <div className="w-full max-w-sm p-8 bg-white border shadow-sm rounded-3xl border-slate-100">
                 <div className="mb-6 text-center">
                     <Logo className="w-20 h-20 mx-auto mb-6" />
                     <h1 className="text-2xl font-bold text-slate-900 mb-2">Create Account</h1>
@@ -88,52 +88,52 @@ export const Signup = () => {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                     {error && (
-                        <div className="p-3 bg-red-50 text-red-500 text-sm rounded-xl border border-red-100">
+                        <div className="p-3 text-sm text-red-500 border border-red-100 bg-red-50 rounded-xl">
                             {error}
                         </div>
                     )}
 
                     <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-900 ml-1">FULL NAME</label>
+                        <label className="ml-1 text-xs font-bold text-slate-900">FULL NAME</label>
                         <input
                             {...register('fullName', { required: 'Name is required' })}
                             type="text"
-                            className="w-full h-12 px-4 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-slate-900"
+                            className="w-full h-12 px-4 font-medium transition-all border bg-slate-50 rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
                             placeholder="John Doe"
                         />
-                        {errors.fullName && <p className="text-red-500 text-xs ml-1">{errors.fullName.message}</p>}
+                        {errors.fullName && <p className="ml-1 text-xs text-red-500">{errors.fullName.message}</p>}
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-900 ml-1">EMAIL</label>
+                        <label className="ml-1 text-xs font-bold text-slate-900">EMAIL</label>
                         <input
                             {...register('email', { required: 'Email is required' })}
                             type="email"
-                            className="w-full h-12 px-4 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-slate-900"
+                            className="w-full h-12 px-4 font-medium transition-all border bg-slate-50 rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
                             placeholder="hello@example.com"
                         />
-                        {errors.email && <p className="text-red-500 text-xs ml-1">{errors.email.message}</p>}
+                        {errors.email && <p className="ml-1 text-xs text-red-500">{errors.email.message}</p>}
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-900 ml-1">PASSWORD</label>
+                        <label className="ml-1 text-xs font-bold text-slate-900">PASSWORD</label>
                         <input
                             {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 chars' } })}
                             type="password"
-                            className="w-full h-12 px-4 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-slate-900"
+                            className="w-full h-12 px-4 font-medium transition-all border bg-slate-50 rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
                             placeholder="••••••••"
                         />
-                        {errors.password && <p className="text-red-500 text-xs ml-1">{errors.password.message}</p>}
+                        {errors.password && <p className="ml-1 text-xs text-red-500">{errors.password.message}</p>}
                     </div>
 
-                    <div className="flex items-center gap-3 my-2 bg-slate-50 p-3 rounded-xl">
-                        <input type="checkbox" required className="accent-blue-600 w-5 h-5 rounded cursor-pointer" />
-                        <span className="text-xs text-slate-500 font-medium leading-tight">
+                    <div className="flex items-center gap-3 p-3 my-2 bg-slate-50 rounded-xl">
+                        <input type="checkbox" required className="w-5 h-5 rounded cursor-pointer accent-blue-600" />
+                        <span className="text-xs font-medium leading-tight text-slate-500">
                             I agree to the <a href="#" className="underline text-slate-900">Terms</a> and <a href="#" className="underline text-slate-900">Privacy Policy</a>
                         </span>
                     </div>
 
-                    <Button disabled={loading} className="w-full h-14 text-lg font-bold shadow-xl shadow-blue-200 bg-blue-600 hover:bg-blue-700 rounded-xl mt-2">
+                    <Button disabled={loading} className="w-full mt-2 text-lg font-bold bg-blue-600 shadow-xl h-14 shadow-blue-200 hover:bg-blue-700 rounded-xl">
                         {loading ? 'Creating Account...' : 'Sign Up'}
                     </Button>
                 </form>

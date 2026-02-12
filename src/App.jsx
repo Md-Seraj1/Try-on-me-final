@@ -14,7 +14,7 @@ import { Orders } from './pages/Orders';
 import { OrderDetails } from './pages/OrderDetails';
 import { Wishlist } from './pages/Wishlist';
 import { PaymentMethods } from './pages/PaymentMethods';
-import { Checkout } from './pages/CheckOut';
+import { Checkout } from './pages/Checkout';
 import { PaymentSuccess } from './pages/PaymentSuccess';
 import { PaymentFailure } from './pages/PaymentFailure';
 import { Login } from './pages/auth/Login';
@@ -178,7 +178,7 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/try-on" element={<TryOn />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/Checkout" element={<Checkout />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
