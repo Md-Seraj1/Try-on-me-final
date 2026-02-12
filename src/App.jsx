@@ -14,7 +14,7 @@ import { Orders } from './pages/Orders';
 import { OrderDetails } from './pages/OrderDetails';
 import { Wishlist } from './pages/Wishlist';
 import { PaymentMethods } from './pages/PaymentMethods';
-import { Checkout } from './pages/Checkout';
+import { Checkout } from './pages/CheckOut';
 import { PaymentSuccess } from './pages/PaymentSuccess';
 import { PaymentFailure } from './pages/PaymentFailure';
 import { Login } from './pages/auth/Login';
