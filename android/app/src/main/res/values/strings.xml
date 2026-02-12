@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VirtuFit</string>
+    <string name="title_activity_main">VirtuFit</string>
+    <string name="package_name">com.tryonme.app</string>
+    <string name="custom_url_scheme">com.tryonme.app</string>
+</resources>
