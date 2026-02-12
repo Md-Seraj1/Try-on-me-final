@@ -149,11 +149,12 @@ CREATE POLICY "Users view own order items" ON order_items FOR SELECT USING (
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, avatar_url)
+  INSERT INTO public.profiles (id, full_name, avatar_url, email)
   VALUES (
     new.id,
     COALESCE(new.raw_user_meta_data->>'full_name', 'User'), -- Default to 'User' if name missing
-    COALESCE(new.raw_user_meta_data->>'avatar_url', '')
+    COALESCE(new.raw_user_meta_data->>'avatar_url', ''),
+    new.email
   )
   ON CONFLICT (id) DO NOTHING; -- Prevent duplicate key errors
   RETURN new;

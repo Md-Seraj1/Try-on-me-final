@@ -4,6 +4,7 @@ import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { Button } from '../../components/ui/Button';
 import { useState } from 'react';
 import { useUserStore } from '../../lib/store';
+import { Logo } from '../../components/ui/Logo';
 
 export const Login = () => {
     const navigate = useNavigate();
@@ -25,6 +26,7 @@ export const Login = () => {
         setError(null);
 
         try {
+            // 1. Attempt Sign In
             const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                 email: data.email,
                 password: data.password,
@@ -32,31 +34,72 @@ export const Login = () => {
 
             if (authError) throw authError;
 
-            // Session is handled by App.jsx subscription, but we can set user immediately
-            // to make the transition smoother
-            setUser(authData.user);
-            navigate('/');
+            if (authData?.user) {
+                // 2. Check Profile Status
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('is_suspended')
+                    .eq('id', authData.user.id)
+                    .single();
+
+                if (profileError && profileError.code !== 'PGRST116') {
+                    console.error("Profile check failed", profileError);
+                }
+
+                // 3. Enforce Block
+                if (profile?.is_suspended) {
+                    await supabase.auth.signOut();
+                    throw new Error("Your account has been suspended. Please contact support.");
+                }
+
+                // Session is handled by App.jsx subscription, but we can set user immediately
+                // to make the transition smoother
+                setUser(authData.user);
+                navigate('/');
+            }
         } catch (err) {
             setError(err.message);
+            if (err.message.includes('suspended')) {
+                await supabase.auth.signOut();
+            }
         } finally {
             setLoading(false);
         }
     };
 
     const handleSocialLogin = async (provider) => {
-        // Implement social login later or keep as placeholder
-        // For now, just logging attempt
-        console.log(`Attempting login with ${provider}`);
-        alert(`${provider} login coming soon!`);
+        if (!isSupabaseConfigured) {
+            setError("❌ Supabase connection missing!");
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: provider.toLowerCase(),
+                options: {
+                    redirectTo: window.location.origin,
+                    queryParams: {
+                        prompt: 'select_account'
+                    }
+                }
+            });
+
+            if (error) throw error;
+            // The redirect will happen automatically
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
     };
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
             <div className="w-full max-w-sm bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
                 <div className="mb-8 text-center">
-                    <div className="w-12 h-12 bg-slate-900 rounded-xl mx-auto mb-4 shadow-lg shadow-slate-200 flex items-center justify-center">
-                        <span className="text-white font-bold text-xl">W</span>
-                    </div>
+                    <Logo className="w-20 h-20 mx-auto mb-6" />
                     <h1 className="text-2xl font-bold text-slate-900 mb-2">Welcome Back</h1>
                     <p className="text-slate-500 text-sm">Sign in to continue shopping</p>
                 </div>
@@ -95,7 +138,7 @@ export const Login = () => {
                     </div>
 
                     <Button disabled={loading} className="w-full h-14 text-lg font-bold shadow-xl shadow-slate-200 bg-slate-900 hover:bg-slate-800 rounded-xl mt-2">
-                        {loading ? 'Signing in...' : 'Log In'}
+                        {loading ? 'Processing...' : 'Log In'}
                     </Button>
                 </form>
 
@@ -109,12 +152,23 @@ export const Login = () => {
                         </div>
                     </div>
 
-                    <div className="mt-6 grid grid-cols-2 gap-3">
-                        <button onClick={() => handleSocialLogin('Google')} className="flex items-center justify-center h-12 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm transform active:scale-95">
-                            Google
-                        </button>
-                        <button onClick={() => handleSocialLogin('Apple')} className="flex items-center justify-center h-12 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm transform active:scale-95">
-                            Apple
+                    <div className="mt-6">
+                        <button
+                            disabled={loading}
+                            onClick={() => handleSocialLogin('Google')}
+                            className="w-full flex items-center justify-center gap-3 h-14 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all font-bold text-slate-700 text-base transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? (
+                                <div className="flex items-center gap-2">
+                                    <div className="w-5 h-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                                    <span>Connecting...</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                                    <span>Continue with Google</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

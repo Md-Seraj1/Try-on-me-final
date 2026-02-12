@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { User, Settings, Package, Heart, LogOut, ChevronRight, CreditCard, Mail, Edit2, MapPin } from 'lucide-react';
+import {
+    User, Settings, Package, Heart, LogOut, ChevronRight,
+    CreditCard, Mail, Edit2, MapPin,
+    LayoutDashboard, Shield
+} from 'lucide-react';
 import { useUserStore } from '../lib/store';
 import { Button } from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
 export const Profile = () => {
-    const { user, profile, logout } = useUserStore();
+    const { user, profile, logout, isAdmin } = useUserStore();
     const navigate = useNavigate();
     const [stats, setStats] = useState({ orders: 0, reviews: 0 });
 
@@ -44,6 +48,7 @@ export const Profile = () => {
     };
 
     const menuItems = [
+        ...(isAdmin ? [{ icon: Shield, label: 'Admin Panel', path: '/admin' }] : []),
         { icon: Package, label: 'My Orders', badge: stats.orders > 0 ? String(stats.orders) : null, path: '/orders' },
         { icon: Heart, label: 'Wishlist', path: '/wishlist' },
         { icon: CreditCard, label: 'Payment Methods', path: '/payments' },
