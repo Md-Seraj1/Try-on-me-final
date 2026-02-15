@@ -137,22 +137,24 @@ export const ProductDetails = () => {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl p-4 mb-8 text-white flex items-center justify-between shadow-lg shadow-violet-200">
-                    <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <Camera size={20} />
-                            <span className="font-bold">AI Virtual Try-On</span>
+                {product.is_ai_enabled && (
+                    <div className="bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl p-4 mb-8 text-white flex items-center justify-between shadow-lg shadow-violet-200">
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <Camera size={20} />
+                                <span className="font-bold">AI Virtual Try-On</span>
+                            </div>
+                            <p className="text-white/80 text-xs">See how it looks on you before buying!</p>
                         </div>
-                        <p className="text-white/80 text-xs">See how it looks on you before buying!</p>
+                        <Button
+                            onClick={() => navigate('/try-on', { state: { product } })}
+                            size="sm"
+                            className="bg-white text-violet-600 hover:bg-white/90 border-none"
+                        >
+                            Try On
+                        </Button>
                     </div>
-                    <Button
-                        onClick={() => navigate('/try-on', { state: { product } })}
-                        size="sm"
-                        className="bg-white text-violet-600 hover:bg-white/90 border-none"
-                    >
-                        Try On
-                    </Button>
-                </div>
+                )}
 
                 <div className="mb-8">
                     <h3 className="font-bold text-slate-900 mb-3">Select Size</h3>

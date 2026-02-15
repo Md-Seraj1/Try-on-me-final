@@ -6,6 +6,7 @@ import { captureFrameFromVideo, virtualTryOn, fetchModelImageAsBase64 } from '..
 import { useCartStore, useUserStore } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Camera as CapCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 const ALIGNMENT_HINTS = {
   clothes: 'Align your upper body in frame',
@@ -39,46 +40,17 @@ export const TryOn = () => {
   const isInWishlist = product ? wishlist.includes(product.id) : false;
 
   useEffect(() => {
-    if (mode !== 'camera') return;
+    if (mode !== 'camera' || tryOnResult) return;
 
-    const startCamera = async () => {
-      setCameraError(null);
-      setCameraLoading(true);
-      try {
-        if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera not supported');
-        if (!window.isSecureContext) throw new Error('Camera requires HTTPS or localhost');
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: false,
-        });
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(console.warn);
-        }
-      } catch (err) {
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-          setCameraError('Camera blocked. Allow access in browser settings, then refresh.');
-          setMode('upload');
-        } else if (err.name === 'NotFoundError') {
-          setCameraError('No camera found.');
-          setMode('upload');
-        } else {
-          setCameraError(err.message || 'Camera failed.');
-          setMode('upload');
-        }
-      } finally {
-        setCameraLoading(false);
-      }
-    };
+    // Reset camera state for native camera
+    setCameraError(null);
+    setCameraLoading(false);
 
-    startCamera();
     return () => {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-      if (videoRef.current) videoRef.current.srcObject = null;
+      // No cleanup needed for native camera call usually, 
+      // but we handle cleanup of any internal states if any.
     };
-  }, [mode]);
+  }, [mode, tryOnResult]);
 
   const runTryOn = async (personBase64) => {
     if (!product) {
@@ -113,17 +85,26 @@ export const TryOn = () => {
     }
   };
 
-  const handleCapture = () => {
-    if (!videoRef.current || !streamRef.current) {
-      setTryOnError('Camera not ready.');
-      return;
+  const handleCapture = async () => {
+    setTryOnError(null);
+    try {
+      const image = await CapCamera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Camera,
+      });
+
+      if (image && image.base64String) {
+        runTryOn(image.base64String);
+      } else {
+        setTryOnError('Could not capture image.');
+      }
+    } catch (err) {
+      if (err.message !== 'User cancelled photos app') {
+        setTryOnError('Camera error: ' + err.message);
+      }
     }
-    const base64 = captureFrameFromVideo(videoRef.current);
-    if (!base64) {
-      setTryOnError('Could not capture.');
-      return;
-    }
-    runTryOn(base64);
   };
 
   const handleUpload = (e) => {
@@ -196,16 +177,15 @@ export const TryOn = () => {
       {/* Viewport */}
       <div className="flex-1 relative rounded-b-[40px] overflow-hidden">
         <div className="absolute inset-0">
-          {/* Live camera */}
-          {mode === 'camera' && (
-            <video
-              ref={videoRef}
-              playsInline
-              muted
-              autoPlay
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ transform: 'scaleX(-1)' }}
-            />
+          {/* Native camera trigger UI */}
+          {mode === 'camera' && !tryOnResult && !tryOnLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/50">
+              <div className="text-center p-8">
+                <Camera size={64} className="mx-auto mb-4 text-violet-500 opacity-60" />
+                <p className="text-neutral-300 mb-2">Native camera will open</p>
+                <p className="text-neutral-500 text-sm">Tap the capture button below</p>
+              </div>
+            </div>
           )}
 
           {/* Photo upload preview or placeholder */}

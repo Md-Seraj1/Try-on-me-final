@@ -22,6 +22,19 @@ import { Signup } from './pages/auth/Signup';
 import { useUserStore } from './lib/store';
 import { supabase } from './lib/supabase';
 import { Placeholder } from './pages/Placeholder';
+import { SplashScreen } from './components/ui/SplashScreen';
+import { useState } from 'react';
+
+// Admin Imports
+import { AdminRoute } from './components/admin/AdminRoute';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { Dashboard as AdminDashboard } from './pages/admin/Dashboard';
+import { Products as AdminProducts } from './pages/admin/Products';
+import { Orders as AdminOrders } from './pages/admin/Orders';
+import { Users as AdminUsers } from './pages/admin/Users';
+import { AiTryOn as AdminAiTryOn } from './pages/admin/AiTryOn';
+// import { Variants as AdminVariants } from './pages/admin/Variants';
+// import { Ratings as AdminRatings } from './pages/admin/Ratings';
 
 const ProtectedRoute = () => {
   const user = useUserStore((state) => state.user);
@@ -35,25 +48,49 @@ function App() {
   const setUser = useUserStore((state) => state.setUser);
   const setProfile = useUserStore((state) => state.setProfile);
   const setWishlist = useUserStore((state) => state.setWishlist);
+  const setIsAdmin = useUserStore((state) => state.setIsAdmin);
+  const [showSplash, setShowSplash] = useState(true);
+
+  const checkAdminStatus = async (userId) => {
+    if (!userId) {
+      setIsAdmin(false);
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
+
+      setIsAdmin(!!data && !error);
+    } catch (err) {
+      console.error('Error checking admin status:', err);
+      setIsAdmin(false);
+    }
+  };
 
   useEffect(() => {
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user);
+        fetchProfile(session.user.id, session.user.user_metadata);
         fetchWishlist(session.user.id);
+        checkAdminStatus(session.user.id);
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user);
+        fetchProfile(session.user.id, session.user.user_metadata);
         fetchWishlist(session.user.id);
+        checkAdminStatus(session.user.id);
       } else {
         setProfile(null);
         setWishlist([]);
+        setIsAdmin(false);
       }
     });
 
@@ -75,40 +112,58 @@ function App() {
     }
   };
 
-  const fetchProfile = async (user) => {
-    if (!user) return;
+  const fetchProfile = async (userId, userMetadata = null) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
-        .single();
+        .eq('id', userId)
+        .maybeSingle(); // Use maybeSingle to avoid 406/error if not found
 
-      if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist, create it (e.g., first social login)
-        const fullName = user.user_metadata?.full_name || user.user_metadata?.name || 'User';
-        const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
-
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            full_name: fullName,
-            avatar_url: avatarUrl,
-          })
-          .select()
-          .single();
-
-        if (!createError && newProfile) {
-          setProfile(newProfile);
+      if (!error && data) {
+        if (data.is_suspended) {
+          alert('Your account has been suspended. Please contact support.');
+          await supabase.auth.signOut();
+          setProfile(null);
+          setUser(null);
+          return;
         }
-      } else if (!error && data) {
         setProfile(data);
+      } else if (!data) {
+        // Profile doesn't exist, create it if we have metadata
+        const user = (await supabase.auth.getUser()).data.user;
+        const metadata = userMetadata || user?.user_metadata;
+
+        if (metadata) {
+          const newProfile = {
+            id: userId,
+            full_name: metadata.full_name || metadata.name || 'User',
+            avatar_url: metadata.avatar_url || metadata.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
+            created_at: new Date().toISOString(),
+            is_suspended: false
+          };
+
+          const { data: createdProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert([newProfile])
+            .select()
+            .single();
+
+          if (!createError && createdProfile) {
+            setProfile(createdProfile);
+          } else {
+            console.error('Error creating profile:', createError);
+          }
+        }
       }
     } catch (error) {
-      console.error('Error handling profile:', error);
+      console.error('Error fetching/creating profile:', error);
     }
   };
+
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
 
   return (
     <BrowserRouter>
@@ -133,10 +188,22 @@ function App() {
           <Route path="/order/:id" element={<OrderDetails />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/payments" element={<PaymentMethods />} />
-          <Route path="/payment/success" element={<PaymentSuccess />} />
-          <Route path="/payment/failure" element={<PaymentFailure />} />
-          <Route path="*" element={<Placeholder title="404 Not Found" />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<PaymentFailure />} />
         </Route>
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="ai-try-on" element={<AdminAiTryOn />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="users" element={<AdminUsers />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Placeholder title="404 Not Found" />} />
       </Routes>
     </BrowserRouter>
   );

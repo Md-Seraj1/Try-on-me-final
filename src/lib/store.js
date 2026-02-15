@@ -52,14 +52,16 @@ export const useCartStore = create(
 export const useUserStore = create((set) => ({
     user: null,
     profile: null,
+    isAdmin: false,
     wishlist: [], // Array of product IDs
     setUser: (user) => set({ user }),
     setProfile: (profile) => set({ profile }),
+    setIsAdmin: (isAdmin) => set({ isAdmin }),
     setWishlist: (wishlist) => set({ wishlist }),
     toggleWishlist: (productId) => set((state) => ({
         wishlist: state.wishlist.includes(productId)
             ? state.wishlist.filter(id => id !== productId)
             : [...state.wishlist, productId]
     })),
-    logout: () => set({ user: null, profile: null, wishlist: [] }),
+    logout: () => set({ user: null, profile: null, wishlist: [], isAdmin: false }),
 }));
